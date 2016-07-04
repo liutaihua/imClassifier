@@ -37,7 +37,7 @@ def train():
     train_src = []
     spam_train_src = []
     ham_train_src = []
-    # {"predict": {"politic": -0.28083912480127471, "spam": -0.32894105503504062, "porn": -0.22844261821606801, "nonsense": 1.3501367894308456, "ham": -0.51191399137917704}, "res": "nonsense"}
+    # {"predict": {"politic": -0.28083912480127471, "spam": -0.32894105503504062, "porn": -0.22844261821606801, "nonsense": 1.3501367894308456, "ham": -0.51191399137917704}, "res": "nonsense"} 
     nonsense_train_src = []
     porn_train_src = []
     politic_train_src = []
@@ -48,7 +48,7 @@ def train():
         if len(line) < 3: continue
         train_src.append((line[0], line[1].strip('\n')))
         c += 1
-
+    
     cc = 0
     for i in open('./shumei_ham.out'):
         line = i.split(' ')
@@ -57,7 +57,7 @@ def train():
         train_src.append((line[0], line[1].strip('\n')))
         if cc > c * 20: break
         cc += 1
-
+    
     # "weight_nonsense": 0.12634238787113075, "reaction": 0.0095999999999999992, "text": "\u5fae\u4fe1\u8fd8\u6ca1\u767b", "porn": 0.1089, "politic": 0.0095999999999999992, "weight_ad": 0.012532975790208603}
     for i in open('./daguan.out'):
         try:
@@ -67,11 +67,11 @@ def train():
         if not is_contain_chinese(d['text'].encode('utf8')) and (not d['text'].strip('\n').isdigit()): continue
         if ('weight_nonsense' not in d) or ('politic' not in d) or ('porn' not in d) or ('weight_ad' not in d) or ('reaction' not in d): continue
 
-        if d['weight_ad'] >  0.2:
+        if d['weight_ad'] >  0.15:
             train_src.append(('spam', d['text']))
         elif d['porn'] >  0.3:
             train_src.append(('porn', d['text']))
-        elif d['weight_nonsense'] > 0.4:
+        elif d['weight_nonsense'] > 0.48:
             train_src.append(('nonsense', d['text']))
         elif d['politic'] >  0.1:
             train_src.append(('politic', d['text']))
@@ -79,9 +79,9 @@ def train():
             train_src.append(('politic', d['text']))
         else:
             train_src.append(('ham', d['text']))
-
-
-
+    
+    
+    
     #train_src = []
     ##total_count = len(spam_train_src) + len(ham_train_src) + len(nonsense_train_src) + len(politic_train_src) + len(porn_train_src) + len(train_src)
     #train_src.extend(spam_train_src)
@@ -97,8 +97,8 @@ def train():
     #random.shuffle(politic_train_src)
     #random.shuffle(porn_train_src)
     random.shuffle(train_src)
-
-
+    
+    
     grocery.train(train_src[:-5000])
     #grocery.train('chinese_ham/msg.text')
     grocery.save()
@@ -141,6 +141,8 @@ class MainHandler(tornado.web.RequestHandler):
                 manual_prediction = 'ham'
             if (ret.dec_values['spam'] < 0.3 ) and (ret.dec_values['spam'] - ret.dec_values['porn'] < 0.2 or ret.dec_values['spam'] - ret.dec_values['nonsense'] < 0.3):
                 manual_prediction = 'nonsense'
+        elif ret.dec_values['porn'] > 0.5:
+            manual_prediction = 'porn'
 
         #ret = ret1
         #if ret1.predicted_y != ret2.predicted_y:
