@@ -1,0 +1,13 @@
+#### 一个短语文本分类器
+
+##### 用到的
+tgrocery  
+一个LibLinear的封装  
+
+jieba 分词  
+
+
+##### 运行
+python tg.py  
+
+访问:  http://localhost:8080/v1/classify?msg=%E5%8A%A0QQ%E7%BE%A4394833
